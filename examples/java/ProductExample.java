@@ -14,7 +14,7 @@ public class ProductExample {
     }
 
     public static void main(String[] args) throws Exception {
-        String query = "query=" + enc("https://www.chewy.com/dp/371150");
+        String query = "query=" + enc("https://www.chewy.com/purina-pro-plan-adult-sensitive-skin/dp/128666");
 
         HttpRequest request = HttpRequest.newBuilder()
             .uri(URI.create("https://api.piloterr.com/v2/chewy/product?" + query))

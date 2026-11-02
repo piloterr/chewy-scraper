@@ -3,7 +3,7 @@
 // Usage: PILOTERR_API_KEY=your-key php product.php
 
 $params = http_build_query([
-    'query' => 'https://www.chewy.com/dp/371150',
+    'query' => 'https://www.chewy.com/purina-pro-plan-adult-sensitive-skin/dp/128666',
 ]);
 
 $ch = curl_init('https://api.piloterr.com/v2/chewy/product?' . $params);

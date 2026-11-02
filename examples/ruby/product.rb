@@ -5,7 +5,7 @@ require "net/http"
 require "uri"
 
 uri = URI("https://api.piloterr.com/v2/chewy/product")
-uri.query = URI.encode_www_form('query' => 'https://www.chewy.com/dp/371150')
+uri.query = URI.encode_www_form('query' => 'https://www.chewy.com/purina-pro-plan-adult-sensitive-skin/dp/128666')
 
 request = Net::HTTP::Get.new(uri)
 request["x-api-key"] = ENV.fetch("PILOTERR_API_KEY")

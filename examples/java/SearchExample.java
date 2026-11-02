@@ -14,7 +14,7 @@ public class SearchExample {
     }
 
     public static void main(String[] args) throws Exception {
-        String query = "query=" + enc("https://www.chewy.com/brands/feliway-6614");
+        String query = "query=" + enc("salmon kibble");
 
         HttpRequest request = HttpRequest.newBuilder()
             .uri(URI.create("https://api.piloterr.com/v2/chewy/search?" + query))

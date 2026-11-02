@@ -10,7 +10,7 @@ using var http = new HttpClient { Timeout = TimeSpan.FromSeconds(60) };
 http.DefaultRequestHeaders.Add("x-api-key", apiKey);
 
 var query =
-    "query=" + Uri.EscapeDataString("https://www.chewy.com/dp/371150");
+    "query=" + Uri.EscapeDataString("https://www.chewy.com/purina-pro-plan-adult-sensitive-skin/dp/128666");
 
 var response = await http.GetAsync("https://api.piloterr.com/v2/chewy/product?" + query);
 var body = await response.Content.ReadAsStringAsync();

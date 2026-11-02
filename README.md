@@ -8,15 +8,15 @@
 
 The **Piloterr Chewy Scraper API** lets you extract public data from Chewy as **clean, structured JSON** — no proxies, headless browsers or HTML parsing to maintain. Endpoints available in production:
 
-- **Chewy Product API** — Retrieve full product details from a Chewy product page URL, including pricing, variants, ratings, and availability.
-- **Chewy Search API** — Scrape Chewy search, brand, or category pages to retrieve a list of products with pricing, ratings, and availability.
+- **Chewy Product API** — Read one Chewy product by URL or numeric id.
+- **Chewy Search API** — Search Chewy by keyword or listing URL.
 
 Use it for price monitoring, assortment tracking, competitor analysis, product research or catalog enrichment.
 
 | Endpoint | Path | Credits | What you get |
 |---|---|---|---|
-| [Chewy Product API](#chewy-product-api) | `/v2/chewy/product` | 2 | Retrieve full product details from a Chewy product page URL, including pricing, variants, ratings, and availability. |
-| [Chewy Search API](#chewy-search-api) | `/v2/chewy/search` | 2 | Scrape Chewy search, brand, or category pages to retrieve a list of products with pricing, ratings, and availability. |
+| [Chewy Product API](#chewy-product-api) | `/v2/chewy/product` | 3 | Read one Chewy product by URL or numeric id. The default mode is expert and returns the historical product cache. simple returns one snake_case product. |
+| [Chewy Search API](#chewy-search-api) | `/v2/chewy/search` | 3 | Search Chewy by keyword or listing URL. The default mode is expert and returns the historical listing objects. simple returns short snake_case cards. |
 
 ## Table of contents
 
@@ -46,15 +46,17 @@ pip install requests        # Python
 
 ## Chewy Product API
 
-Retrieve full product details from a Chewy product page URL, including pricing, variants, ratings, and availability.
+Read one Chewy product by URL or numeric id. The default mode is expert and returns the historical product cache. simple returns one snake_case product.
 
-`GET | POST https://api.piloterr.com/v2/chewy/product` · **2 credits per request** · [Full reference](https://app.piloterr.com/openapi)
+`GET | POST https://api.piloterr.com/v2/chewy/product` · **3 credits per request** · [Full reference](https://app.piloterr.com/openapi)
 
 ### Request parameters
 
 | Parameter | Type | Required | Description |
 |---|---|---|---|
-| `query` | string | ✅ | Chewy product page URL to scrape. |
+| `query` | string | ✅ | Which product to read. A Chewy product URL such as https://www.chewy.com/purina-pro-plan-adult-sensitive-skin/dp/128666, or just the numeric id 128666. A search link, a keyword, or another website returns 400. |
+| `mode` | string | — | Which JSON to return. Default expert. |
+| `return_page_source` | boolean | — | Set to true to get the rendered HTML in result instead of JSON. Default false. The string false stays false and still returns JSON. |
 
 ### Python example
 
@@ -67,7 +69,7 @@ response = requests.get(
     "https://api.piloterr.com/v2/chewy/product",
     headers={"x-api-key": os.environ["PILOTERR_API_KEY"]},
     params={
-        "query": "https://www.chewy.com/dp/371150",
+        "query": "https://www.chewy.com/purina-pro-plan-adult-sensitive-skin/dp/128666",
     },
     timeout=60,
 )
@@ -81,65 +83,124 @@ print(json.dumps(data, indent=2, ensure_ascii=False)[:2000])
 
 ```typescript
 type ChewyProduct = {
-  ROOT_QUERY?: {
-    pdp?: {
-      __typename?: string;
-      featureToggles?: Record<string, unknown>;
-    };
-    __typename?: string;
-    currentUser?: unknown;
-    "item({\"id\":\"371150\"})"?: {
-      __ref?: string;
-    };
-    "product({\"id\":\"371138\"})"?: {
-      __ref?: string;
-    };
-  };
-  "Item:SXRlbTozNzExNTA="?: {
+  "Item:SXRlbToxMjg2NjY="?: {
     id?: string;
     gtin?: string;
+    isRx?: boolean;
     name?: string;
+    uses?: unknown;
+    isNew?: boolean;
+    images?: {
+      __typename?: string;
+      "url({\"autoCrop\":true,\"square\":600})"?: string;
+    }[];
+    videos?: {
+      url?: string;
+      image?: string;
+      thumbnail?: string;
+      __typename?: string;
+    }[];
+    weight?: string;
     entryID?: string;
     inStock?: boolean;
     isFresh?: boolean;
+    product?: {
+      slug?: string;
+      __ref?: string;
+      __typename?: string;
+    };
+    cautions?: unknown;
     isBundle?: boolean;
     isFrozen?: boolean;
     mapPrice?: string;
+    fullImage?: {
+      __typename?: string;
+      "url({\"autoCrop\":true,\"square\":144})"?: string;
+      "url({\"autoCrop\":true,\"square\":1800})"?: string;
+      "url({\"autoCrop\":true,\"maxWidth\":275})"?: string;
+    };
     isInStock?: boolean;
     isVetDiet?: boolean;
     onSpecial?: boolean;
     __typename?: string;
-    dimensions?: string;
+    dimensions?: unknown;
+    infoGroups?: {
+      name?: string;
+      sections?: Record<string, unknown>[];
+      __typename?: string;
+    }[];
     isGiftCard?: boolean;
-    isLiveFeed?: boolean;
-    partNumber?: string;
-    description?: string;
-    isPublished?: boolean;
-    keyBenefits?: string[];
-    perUnitPrice?: string;
-    autoshipPrice?: string;
-    isUnavailable?: boolean;
-    isPrescription?: boolean;
-    advertisedPrice?: string;
     [key: string]: unknown;
   };
-  "Product:UHJvZHVjdDozNzExMzg="?: {
+  "Product:UHJvZHVjdDo1MjY3Ng=="?: {
     id?: string;
+    mda?: {
+      id?: number;
+      name?: string;
+      options?: Record<string, unknown>[];
+      __typename?: string;
+      isEnsemble?: boolean;
+      manufacturerDetails?: unknown;
+    }[];
     name?: string;
     slug?: string;
     rating?: number;
     entryID?: string;
+    brandURL?: string;
     __typename?: string;
     isEnsemble?: boolean;
     partNumber?: string;
+    breadcrumbs?: {
+      id?: string;
+      url?: string;
+      name?: string;
+      __typename?: string;
+    }[];
     description?: string;
+    iconography?: {
+      name?: string;
+      image?: string;
+      __typename?: string;
+    }[];
     ratingCount?: number;
+    questionsCount?: number;
     manufacturerName?: string;
+    ratingDistributions?: {
+      rating?: number;
+      __typename?: string;
+      ratingCount?: number;
+      ratingPercent?: number;
+    }[];
+    merchClassIdentifiers?: string[];
+    "questions:{\"first\":4}"?: {
+      edges?: Record<string, unknown>[];
+      pageInfo?: Record<string, unknown>;
+      __typename?: string;
+      totalCount?: number;
+    };
+    "items({\"includeEnsemble\":true})"?: {
+      __ref?: string;
+    }[];
+    "attributes({\"identifier\":\"PetType\"})"?: {
+      values?: Record<string, unknown>[];
+      __typename?: string;
+    }[];
+    "attributes({\"identifier\":\"DrugType\"})"?: unknown[];
+    "attributes({\"identifier\":\"ProductCategory\"})"?: {
+      values?: Record<string, unknown>[];
+      __typename?: string;
+    }[];
+    "attributes({\"includeEnsemble\":true,\"usage\":[\"DEFINING\"]})"?: {
+      id?: number;
+      name?: string;
+      values?: Record<string, unknown>[];
+      __typename?: string;
+    }[];
   };
 };
 
 const params = new URLSearchParams({
-  "query": "https://www.chewy.com/dp/371150",
+  "query": "https://www.chewy.com/purina-pro-plan-adult-sensitive-skin/dp/128666",
 });
 
 const response = await fetch(`https://api.piloterr.com/v2/chewy/product?${params}`, {
@@ -160,7 +221,7 @@ POST https://api.piloterr.com/v2/chewy/product
 x-api-key: YOUR_API_KEY
 Content-Type: application/json
 
-{"query": "https://www.chewy.com/dp/371150"}
+{"query": "https://www.chewy.com/purina-pro-plan-adult-sensitive-skin/dp/128666"}
 ```
 </details>
 
@@ -170,69 +231,222 @@ Example response from the API reference, abridged — real values depend on the 
 
 ```json
 {
-  "ROOT_QUERY": {
-    "pdp": {
-      "__typename": "PDP",
-      "featureToggles": {
-        "__typename": "PDPFeatureToggles",
-        "qnaEnabled": true,
-        "reviewsEnabled": true,
-        "fbtWidgetEnabled": true,
-        "realTimeDealsEnabled": true,
-        "loyaltyFeaturesEnabled": true
+  "Item:SXRlbToxMjg2NjY=": {
+    "id": "SXRlbToxMjg2NjY=",
+    "gtin": "038100175526",
+    "isRx": false,
+    "name": "Purina Pro Plan Adult Sensitive Skin & Stomach Salmon & Rice Formula Dry Dog Food, 30-lb bag",
+    "uses": null,
+    "isNew": false,
+    "images": [
+      {
+        "__typename": "Image",
+        "url({\"autoCrop\":true,\"square\":600})": "https://image.chewy.com/catalog/general/images/moe/0671ffce-cb9e-7b85-8000-c4f526193d1c._AC_SS600_V1_.jpg"
+      },
+      {
+        "__typename": "Image",
+        "url({\"autoCrop\":true,\"square\":600})": "https://image.chewy.com/catalog/general/images/moe/0671ffce-aa8a-7b92-8000-55ebf9862cbf._AC_SS600_V1_.jpg"
       }
-    },
-    "__typename": "Query",
-    "currentUser": null,
-    "item({\"id\":\"371150\"})": {
-      "__ref": "Item:SXRlbTozNzExNTA="
-    },
-    "product({\"id\":\"371138\"})": {
-      "__ref": "Product:UHJvZHVjdDozNzExMzg="
-    }
-  },
-  "Item:SXRlbTozNzExNTA=": {
-    "id": "SXRlbTozNzExNTA=",
-    "gtin": "672288001200",
-    "name": "Green Lifestyle Printed Reusable Cat & Dog Pee Pads, Blue & White, 41 x 41-in, 2 count",
-    "entryID": "371150",
+    ],
+    "videos": [
+      {
+        "url": "https://fast.wistia.com/medias/ggqjn4l7f3",
+        "image": "https://embed-ssl.wistia.com/deliveries/47b887565486f8434309c72dc24488d0.jpg?image_crop_resized=528x297",
+        "thumbnail": "https://fast.wistia.com/embed/medias/ggqjn4l7f3/swatch",
+        "__typename": "Video"
+      },
+      {
+        "url": "https://fast.wistia.com/medias/mznrapwfi1",
+        "image": "https://embed-ssl.wistia.com/deliveries/76c99685dc5c2df732317673e82f6f9c0fb0d930.jpg?image_crop_resized=528x297",
+        "thumbnail": "https://fast.wistia.com/embed/medias/mznrapwfi1/swatch",
+        "__typename": "Video"
+      }
+    ],
+    "weight": "30 pounds",
+    "entryID": "128666",
     "inStock": true,
     "isFresh": false,
+    "product": {
+      "slug": "purina-pro-plan-adult-sensitive-skin",
+      "__ref": "Product:UHJvZHVjdDo1MjY3Ng==",
+      "__typename": "Product"
+    },
+    "cautions": null,
     "isBundle": false,
     "isFrozen": false,
-    "mapPrice": "$34.99",
+    "mapPrice": "$77.48",
+    "fullImage": {
+      "__typename": "Image",
+      "url({\"autoCrop\":true,\"square\":144})": "https://image.chewy.com/catalog/general/images/moe/0671ffce-cb9e-7b85-8000-c4f526193d1c._AC_SS144_V1_.jpg",
+      "url({\"autoCrop\":true,\"square\":1800})": "https://image.chewy.com/catalog/general/images/moe/0671ffce-cb9e-7b85-8000-c4f526193d1c._AC_SS1800_V1_.jpg",
+      "url({\"autoCrop\":true,\"maxWidth\":275})": "https://image.chewy.com/catalog/general/images/moe/0671ffce-cb9e-7b85-8000-c4f526193d1c._AC_SX275_V1_.jpg"
+    },
     "isInStock": true,
     "isVetDiet": false,
     "onSpecial": true,
     "__typename": "Item",
-    "dimensions": "41 x 41 x 0.3 inches",
-    "isGiftCard": false,
-    "isLiveFeed": false,
-    "partNumber": "344914",
-    "description": "Protect your home from a variety of pet messes with Green Lifestyle Printed Reusable Pee Pads for Cat & Dog.",
-    "isPublished": true,
-    "keyBenefits": [
-      "Large, thick pads are ideal for a variety of pets, including pups, feline friends and bunnies.",
-      "Waterproof backing locks in moisture to prevent messy leaks."
+    "dimensions": null,
+    "infoGroups": [
+      {
+        "name": "Nutritional Info",
+        "sections": [
+          {},
+          {}
+        ],
+        "__typename": "InfoGroup"
+      },
+      {
+        "name": "Feeding Instructions",
+        "sections": [
+          {},
+          {}
+        ],
+        "__typename": "InfoGroup"
+      }
     ],
-    "perUnitPrice": "$17.50",
-    "autoshipPrice": "$33.24",
-    "isUnavailable": false,
-    "isPrescription": false,
-    "advertisedPrice": "$34.99"
+    "isGiftCard": false
   },
-  "Product:UHJvZHVjdDozNzExMzg=": {
-    "id": "UHJvZHVjdDozNzExMzg=",
-    "name": "Green Lifestyle Printed Reusable Cat & Dog Pee Pads, Blue & White",
-    "slug": "green-lifestyle-printed-reusable-cat",
-    "rating": 4.6938,
-    "entryID": "371138",
+  "Product:UHJvZHVjdDo1MjY3Ng==": {
+    "id": "UHJvZHVjdDo1MjY3Ng==",
+    "mda": [
+      {
+        "id": 777,
+        "name": "Flavor",
+        "options": [
+          {},
+          {}
+        ],
+        "__typename": "MDA",
+        "isEnsemble": true,
+        "manufacturerDetails": null
+      },
+      {
+        "id": 400,
+        "name": "Size",
+        "options": [
+          {},
+          {}
+        ],
+        "__typename": "MDA",
+        "isEnsemble": false,
+        "manufacturerDetails": null
+      }
+    ],
+    "name": "Purina Pro Plan Adult Sensitive Skin & Stomach Salmon & Rice Formula Dry Dog Food",
+    "slug": "purina-pro-plan-adult-sensitive-skin",
+    "rating": 4.5064,
+    "entryID": "52676",
+    "brandURL": "https://www.chewy.com/brands/purina-pro-plan-7434",
     "__typename": "Product",
-    "isEnsemble": false,
-    "partNumber": "344902",
-    "description": "Protect your home from a variety of pet messes with Green Lifestyle Printed Reusable Pee Pads for Cat & Dog.",
-    "ratingCount": 369,
-    "manufacturerName": "Green Lifestyle"
+    "isEnsemble": true,
+    "partNumber": "67742",
+    "breadcrumbs": [
+      {
+        "id": "288",
+        "url": "https://www.chewy.com/b/dog-288",
+        "name": "Dog Supplies",
+        "__typename": "Breadcrumb"
+      },
+      {
+        "id": "332",
+        "url": "https://www.chewy.com/b/food-332",
+        "name": "Dog Food",
+        "__typename": "Breadcrumb"
+      }
+    ],
+    "description": "Tend to your furry friend’s skin and digestive health with Purina Pro Plan Sensitive Skin and Stomach Salmon and Rice Adult Dry Dog Food …",
+    "iconography": [
+      {
+        "name": "Chicken-Free",
+        "image": "https://image.chewy.com/catalog/cms/logos/attribute-icons/06792943-754c-776a-8000-a68f9d01b654.svg",
+        "__typename": "Icon"
+      },
+      {
+        "name": "High-Protein",
+        "image": "https://image.chewy.com/catalog/cms/logos/attribute-icons/06792942-f906-7389-8000-c8ad6870776e.svg",
+        "__typename": "Icon"
+      }
+    ],
+    "ratingCount": 23686,
+    "questionsCount": 151,
+    "manufacturerName": "Purina Pro Plan",
+    "ratingDistributions": [
+      {
+        "rating": 1,
+        "__typename": "RatingDistribution",
+        "ratingCount": 1654,
+        "ratingPercent": 6.983
+      },
+      {
+        "rating": 2,
+        "__typename": "RatingDistribution",
+        "ratingCount": 605,
+        "ratingPercent": 2.5543
+      }
+    ],
+    "merchClassIdentifiers": [
+      "f2-science",
+      "f2-science-science-food"
+    ],
+    "questions:{\"first\":4}": {
+      "edges": [
+        {},
+        {}
+      ],
+      "pageInfo": {
+        "endCursor": "YXJyYXljb25uZWN0aW9uOjM=",
+        "__typename": "PageInfo",
+        "hasNextPage": true,
+        "startCursor": "",
+        "hasPreviousPage": false
+      },
+      "__typename": "QuestionConnection",
+      "totalCount": 151
+    },
+    "items({\"includeEnsemble\":true})": [
+      {
+        "__ref": "Item:SXRlbToxMjk4MDk="
+      },
+      {
+        "__ref": "Item:SXRlbToxMjk4MTE="
+      }
+    ],
+    "attributes({\"identifier\":\"PetType\"})": [
+      {
+        "values": [
+          {}
+        ],
+        "__typename": "Attribute"
+      }
+    ],
+    "attributes({\"identifier\":\"DrugType\"})": [],
+    "attributes({\"identifier\":\"ProductCategory\"})": [
+      {
+        "values": [
+          {}
+        ],
+        "__typename": "Attribute"
+      }
+    ],
+    "attributes({\"includeEnsemble\":true,\"usage\":[\"DEFINING\"]})": [
+      {
+        "id": 777,
+        "name": "Flavor",
+        "values": [
+          {}
+        ],
+        "__typename": "Attribute"
+      },
+      {
+        "id": 400,
+        "name": "Size",
+        "values": [
+          {},
+          {}
+        ],
+        "__typename": "Attribute"
+      }
+    ]
   }
 }
 ```
@@ -241,43 +455,46 @@ Example response from the API reference, abridged — real values depend on the 
 
 | Field | Type | Description |
 |---|---|---|
-| `ROOT_QUERY` | object |  |
-| `ROOT_QUERY.pdp` | object |  |
-| `ROOT_QUERY.__typename` | string |  |
-| `ROOT_QUERY.currentUser` | object |  |
-| `ROOT_QUERY.item({"id":"371150"})` | object |  |
-| `ROOT_QUERY.product({"id":"371138"})` | object |  |
-| `Item:SXRlbTozNzExNTA=` | object |  |
-| `Item:SXRlbTozNzExNTA=.id` | string |  |
-| `Item:SXRlbTozNzExNTA=.gtin` | string |  |
-| `Item:SXRlbTozNzExNTA=.name` | string |  |
-| `Item:SXRlbTozNzExNTA=.entryID` | string |  |
-| `Item:SXRlbTozNzExNTA=.inStock` | boolean |  |
-| `Item:SXRlbTozNzExNTA=.isFresh` | boolean |  |
-| `Item:SXRlbTozNzExNTA=.isBundle` | boolean |  |
-| `Item:SXRlbTozNzExNTA=.isFrozen` | boolean |  |
-| `Item:SXRlbTozNzExNTA=.mapPrice` | string |  |
-| `Item:SXRlbTozNzExNTA=.isInStock` | boolean |  |
-| `Item:SXRlbTozNzExNTA=.isVetDiet` | boolean |  |
-| `Item:SXRlbTozNzExNTA=.onSpecial` | boolean |  |
-| `Item:SXRlbTozNzExNTA=.__typename` | string |  |
-| `Item:SXRlbTozNzExNTA=.dimensions` | string |  |
-| `Item:SXRlbTozNzExNTA=.isGiftCard` | boolean |  |
-| `Item:SXRlbTozNzExNTA=.isLiveFeed` | boolean |  |
-| `Item:SXRlbTozNzExNTA=.partNumber` | string |  |
-| `Item:SXRlbTozNzExNTA=.description` | string |  |
+| `Item:SXRlbToxMjg2NjY=` | object |  |
+| `Item:SXRlbToxMjg2NjY=.id` | string |  |
+| `Item:SXRlbToxMjg2NjY=.gtin` | string |  |
+| `Item:SXRlbToxMjg2NjY=.isRx` | boolean |  |
+| `Item:SXRlbToxMjg2NjY=.name` | string |  |
+| `Item:SXRlbToxMjg2NjY=.uses` | object |  |
+| `Item:SXRlbToxMjg2NjY=.isNew` | boolean |  |
+| `Item:SXRlbToxMjg2NjY=.images[]` | object[] |  |
+| `Item:SXRlbToxMjg2NjY=.videos[]` | object[] |  |
+| `Item:SXRlbToxMjg2NjY=.weight` | string |  |
+| `Item:SXRlbToxMjg2NjY=.entryID` | string |  |
+| `Item:SXRlbToxMjg2NjY=.inStock` | boolean |  |
+| `Item:SXRlbToxMjg2NjY=.isFresh` | boolean |  |
+| `Item:SXRlbToxMjg2NjY=.product` | object |  |
+| `Item:SXRlbToxMjg2NjY=.cautions` | object |  |
+| `Item:SXRlbToxMjg2NjY=.isBundle` | boolean |  |
+| `Item:SXRlbToxMjg2NjY=.isFrozen` | boolean |  |
+| `Item:SXRlbToxMjg2NjY=.mapPrice` | string |  |
+| `Item:SXRlbToxMjg2NjY=.fullImage` | object |  |
+| `Item:SXRlbToxMjg2NjY=.isInStock` | boolean |  |
+| `Item:SXRlbToxMjg2NjY=.isVetDiet` | boolean |  |
+| `Item:SXRlbToxMjg2NjY=.onSpecial` | boolean |  |
+| `Item:SXRlbToxMjg2NjY=.__typename` | string |  |
+| `Item:SXRlbToxMjg2NjY=.dimensions` | object |  |
+| `Item:SXRlbToxMjg2NjY=.infoGroups[]` | object[] |  |
 
 ## Chewy Search API
 
-Scrape Chewy search, brand, or category pages to retrieve a list of products with pricing, ratings, and availability.
+Search Chewy by keyword or listing URL. The default mode is expert and returns the historical listing objects. simple returns short snake_case cards.
 
-`GET | POST https://api.piloterr.com/v2/chewy/search` · **2 credits per request** · [Full reference](https://app.piloterr.com/openapi)
+`GET | POST https://api.piloterr.com/v2/chewy/search` · **3 credits per request** · [Full reference](https://app.piloterr.com/openapi)
 
 ### Request parameters
 
 | Parameter | Type | Required | Description |
 |---|---|---|---|
-| `query` | string | ✅ | Chewy search or browse URL to scrape results from. |
+| `query` | string | ✅ | What to search for. A keyword such as salmon kibble, or a Chewy search or category link such as https://www.chewy.com/s?query=dog+food. A product link (a URL that contains /dp/) returns 400. Another website returns 400. |
+| `page` | number | — | Which page to fetch, starting at 1. Leave this empty for page 1. If query is a listing link that already has page=2, this value replaces that page. In simple mode, pagination.page is this page and pagination.next is the … |
+| `mode` | string | — | Which JSON to return. Default expert. |
+| `return_page_source` | boolean | — | Set to true to get the rendered HTML in result instead of JSON. Default false. The string false stays false and still returns JSON. |
 
 ### Python example
 
@@ -290,7 +507,7 @@ response = requests.get(
     "https://api.piloterr.com/v2/chewy/search",
     headers={"x-api-key": os.environ["PILOTERR_API_KEY"]},
     params={
-        "query": "https://www.chewy.com/brands/feliway-6614",
+        "query": "salmon kibble",
     },
     timeout=60,
 )
@@ -311,6 +528,7 @@ type ChewySearch = {
     image?: string;
     is_ad?: boolean;
     is_atf?: boolean;
+    is_btf?: boolean;
     is_new?: boolean;
     rating?: number;
     is_deal?: boolean;
@@ -318,21 +536,23 @@ type ChewySearch = {
     is_fresh?: boolean;
     is_bundle?: boolean;
     is_frozen?: boolean;
-    description?: string;
+    is_pb_fresh?: boolean;
+    offer_price?: string;
     part_number?: string;
+    ad_placement?: number;
+    bundle_title?: unknown;
+    is_gift_card?: boolean;
+    is_live_feed?: boolean;
+    is_smart_pak?: boolean;
+    key_benefits?: unknown[];
     manufacturer?: string;
     rating_count?: number;
-    strike_price?: string;
-    display_price?: string;
-    autoship_price?: string;
-    is_rx_vet_diet?: boolean;
-    is_discontinued?: boolean;
-    is_prescription?: boolean;
+    [key: string]: unknown;
   }[];
 };
 
 const params = new URLSearchParams({
-  "query": "https://www.chewy.com/brands/feliway-6614",
+  "query": "salmon kibble",
 });
 
 const response = await fetch(`https://api.piloterr.com/v2/chewy/search?${params}`, {
@@ -353,7 +573,7 @@ POST https://api.piloterr.com/v2/chewy/search
 x-api-key: YOUR_API_KEY
 Content-Type: application/json
 
-{"query": "https://www.chewy.com/brands/feliway-6614"}
+{"query": "salmon kibble"}
 ```
 </details>
 
@@ -365,54 +585,31 @@ Example response from the API reference, abridged — real values depend on the 
 {
   "results": [
     {
-      "ppu": "$24.99/ea",
-      "href": "https://www.chewy.com/feliway-multicat-30-day-starter-kit/dp/116881",
-      "name": "Feliway MultiCat 30 Day Starter Kit Calming Diffuser for Cats, 1 count",
-      "image": "https://image.chewy.com/catalog/general/images/feliway-multicat-30-day-starter-kit-calming-diffuser-for-cats-1-count/img-740068,1",
-      "is_ad": false,
-      "is_atf": false,
+      "ppu": "$2.59/lb",
+      "href": "https://www.chewy.com/api/event/p/sar/click?adsOrigin=aspen2&id=238a99cdbce84f4a97e766531a139158&x=H4sIAAAAAAAA_6VYWZOiyhL-Lzw7PVCASr-ccG…",
+      "name": "Purina Pro Plan Adult Sensitive Skin & Stomach Salmon & Rice Formula Dry Dog Food, 30-lb bag",
+      "image": "https://image.chewy.com/catalog/general/images/moe/0671ffce-cb9e-7b85-8000-c4f526193d1c,1",
+      "is_ad": true,
+      "is_atf": true,
+      "is_btf": false,
       "is_new": false,
-      "rating": 3.711,
-      "is_deal": true,
-      "in_stock": true,
-      "is_fresh": false,
-      "is_bundle": false,
-      "is_frozen": false,
-      "description": "After cats give birth, they naturally produce pheromones that send harmony messages to their little ones. Feliway MultiCat 30 Day Starter…",
-      "part_number": "94199",
-      "manufacturer": "Feliway",
-      "rating_count": 3246,
-      "strike_price": "$33.99",
-      "display_price": "$24.99",
-      "autoship_price": "$23.74",
-      "is_rx_vet_diet": false,
-      "is_discontinued": false,
-      "is_prescription": false
-    },
-    {
-      "ppu": "$24.99/ea",
-      "href": "https://www.chewy.com/feliway-multicat-calming-diffuser-refill/dp/52450",
-      "name": "Feliway MultiCat Calming Diffuser Refill for Cats, 1 count",
-      "image": "https://image.chewy.com/catalog/general/images/feliway-multicat-calming-diffuser-refill-for-cats-1-count/img-627449,1",
-      "is_ad": false,
-      "is_atf": false,
-      "is_new": false,
-      "rating": 3.914,
+      "rating": 4.5068,
       "is_deal": false,
       "in_stock": true,
       "is_fresh": false,
       "is_bundle": false,
       "is_frozen": false,
-      "description": "Help create harmony and avoid conflict between your cats with Feliway MultiCat Calming Diffuser Refill.",
-      "part_number": "52450",
-      "manufacturer": "Feliway",
-      "rating_count": 1842,
-      "strike_price": null,
-      "display_price": "$24.99",
-      "autoship_price": "$23.74",
-      "is_rx_vet_diet": false,
-      "is_discontinued": false,
-      "is_prescription": false
+      "is_pb_fresh": false,
+      "offer_price": "77.48",
+      "part_number": "101143",
+      "ad_placement": 0,
+      "bundle_title": null,
+      "is_gift_card": false,
+      "is_live_feed": false,
+      "is_smart_pak": false,
+      "key_benefits": [],
+      "manufacturer": "Purina Pro Plan",
+      "rating_count": 23711
     }
   ]
 }
@@ -429,6 +626,7 @@ Example response from the API reference, abridged — real values depend on the 
 | `results[].image` | string |  |
 | `results[].is_ad` | boolean |  |
 | `results[].is_atf` | boolean |  |
+| `results[].is_btf` | boolean |  |
 | `results[].is_new` | boolean |  |
 | `results[].rating` | number |  |
 | `results[].is_deal` | boolean |  |
@@ -436,16 +634,16 @@ Example response from the API reference, abridged — real values depend on the 
 | `results[].is_fresh` | boolean |  |
 | `results[].is_bundle` | boolean |  |
 | `results[].is_frozen` | boolean |  |
-| `results[].description` | string |  |
+| `results[].is_pb_fresh` | boolean |  |
+| `results[].offer_price` | string |  |
 | `results[].part_number` | string |  |
+| `results[].ad_placement` | integer |  |
+| `results[].bundle_title` | object |  |
+| `results[].is_gift_card` | boolean |  |
+| `results[].is_live_feed` | boolean |  |
+| `results[].is_smart_pak` | boolean |  |
+| `results[].key_benefits` | any[] |  |
 | `results[].manufacturer` | string |  |
-| `results[].rating_count` | integer |  |
-| `results[].strike_price` | string |  |
-| `results[].display_price` | string |  |
-| `results[].autoship_price` | string |  |
-| `results[].is_rx_vet_diet` | boolean |  |
-| `results[].is_discontinued` | boolean |  |
-| `results[].is_prescription` | boolean |  |
 
 ## Code examples in other languages
 
@@ -489,11 +687,19 @@ No. Piloterr handles rendering, proxy rotation and retries on its side. You only
 
 ### How much does a request cost?
 
-Credits per call: `/v2/chewy/product` **2**, `/v2/chewy/search` **2**. See the [Piloterr website](https://www.piloterr.com) for plans.
+Credits per call: `/v2/chewy/product` **3**, `/v2/chewy/search` **3**. See the [Piloterr website](https://www.piloterr.com) for plans.
 
 ### What data does the Chewy API return?
 
-Each endpoint returns structured JSON: **Chewy Product** — `ROOT_QUERY`, `ROOT_QUERY.pdp`, `ROOT_QUERY.__typename`, `ROOT_QUERY.currentUser`, `ROOT_QUERY.item({"id":"371150"})`, `ROOT_QUERY.product({"id":"371138"})`; **Chewy Search** — `results[]`, `results[].ppu`, `results[].href`, `results[].name`, `results[].image`, `results[].is_ad`.
+Each endpoint returns structured JSON: **Chewy Product** — `Item:SXRlbToxMjg2NjY=`, `Item:SXRlbToxMjg2NjY=.id`, `Item:SXRlbToxMjg2NjY=.gtin`, `Item:SXRlbToxMjg2NjY=.isRx`, `Item:SXRlbToxMjg2NjY=.name`, `Item:SXRlbToxMjg2NjY=.uses`; **Chewy Search** — `results[]`, `results[].ppu`, `results[].href`, `results[].name`, `results[].image`, `results[].is_ad`.
+
+### How do I paginate Chewy results?
+
+Use the `page` parameter and keep requesting while the response indicates more results.
+
+### Can I get the raw HTML instead of JSON?
+
+Yes. Set `return_page_source=true` and the response becomes `{"result": "..."}` with the page source.
 
 ### Which languages are supported?
 

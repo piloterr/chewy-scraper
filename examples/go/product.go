@@ -15,7 +15,7 @@ import (
 
 func main() {
 	params := url.Values{}
-	params.Set("query", "https://www.chewy.com/dp/371150")
+	params.Set("query", "https://www.chewy.com/purina-pro-plan-adult-sensitive-skin/dp/128666")
 
 	req, _ := http.NewRequest("GET", "https://api.piloterr.com/v2/chewy/product?"+params.Encode(), nil)
 	req.Header.Set("x-api-key", os.Getenv("PILOTERR_API_KEY"))

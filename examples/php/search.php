@@ -3,7 +3,7 @@
 // Usage: PILOTERR_API_KEY=your-key php search.php
 
 $params = http_build_query([
-    'query' => 'https://www.chewy.com/brands/feliway-6614',
+    'query' => 'salmon kibble',
 ]);
 
 $ch = curl_init('https://api.piloterr.com/v2/chewy/search?' . $params);

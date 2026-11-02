@@ -5,4 +5,4 @@ set -euo pipefail
 
 curl -sS -G "https://api.piloterr.com/v2/chewy/product" \
   -H "x-api-key: ${PILOTERR_API_KEY}" \
-  --data-urlencode query=https://www.chewy.com/dp/371150
+  --data-urlencode query=https://www.chewy.com/purina-pro-plan-adult-sensitive-skin/dp/128666

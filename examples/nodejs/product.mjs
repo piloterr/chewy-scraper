@@ -2,7 +2,7 @@
 // Usage: PILOTERR_API_KEY=your-key node product.mjs
 
 const params = new URLSearchParams({
-  "query": "https://www.chewy.com/dp/371150",
+  "query": "https://www.chewy.com/purina-pro-plan-adult-sensitive-skin/dp/128666",
 });
 
 const response = await fetch(`https://api.piloterr.com/v2/chewy/product?${params}`, {

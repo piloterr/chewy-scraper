@@ -2,7 +2,7 @@
 // Usage: PILOTERR_API_KEY=your-key node search.mjs
 
 const params = new URLSearchParams({
-  "query": "https://www.chewy.com/brands/feliway-6614",
+  "query": "salmon kibble",
 });
 
 const response = await fetch(`https://api.piloterr.com/v2/chewy/search?${params}`, {

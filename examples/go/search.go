@@ -15,7 +15,7 @@ import (
 
 func main() {
 	params := url.Values{}
-	params.Set("query", "https://www.chewy.com/brands/feliway-6614")
+	params.Set("query", "salmon kibble")
 
 	req, _ := http.NewRequest("GET", "https://api.piloterr.com/v2/chewy/search?"+params.Encode(), nil)
 	req.Header.Set("x-api-key", os.Getenv("PILOTERR_API_KEY"))
